@@ -1,0 +1,62 @@
+project_name: "wandb-project-name"
+run_name: "run-name"
+
+## Data Configuration
+# --- Data / patch geometry ---
+in_channels: 3
+image_size: 256
+patch_size: 16
+shuffle_buffer: 10000
+
+# --- Masking ---
+num_target_blocks: 4
+mask_seed: 0
+
+## Model Configuration
+# --- Encoder (ViT-Base) ---
+encoder_d_model: 768
+encoder_d_ff: 3072
+encoder_num_heads: 12
+encoder_num_layers: 12
+encoder_dropout: 0.0
+
+# --- Predictor (narrower and shallower than the encoder) ---
+predictor_d_model: 384
+predictor_d_ff: 1536
+predictor_num_heads: 12
+predictor_num_layers: 6
+predictor_dropout: 0.0
+
+## Training Configuration
+# --- Optimization ---
+batch_size: 64               # fits in ~35 GB on A100 80 GB with bf16
+gradient_accumulation_steps: 2  # effective batch = 256
+learning_rate: 5.0e-4
+weight_decay: 0.05
+warmup_steps: 50000           # ~10% of max_steps
+max_steps: 1000000             # ~1.28M / 128 = 10k steps/epoch × 100 epochs
+
+# --- EMA target encoder momentum, cosine-ramped from start to end ---
+ema_start: 0.996
+ema_end: 1.0
+
+## Miscellaneous Configuration
+# --- Logging / IO ---
+log_every: 500               # scaled from 10k proportionally
+save_every: 50000             
+
+# --- Directories ---
+wandb_dir: "logs"
+checkpoint_dir: "artifacts/checkpoints/ijepa-imagenet"
+
+# --- Checkpoint loading ---
+from_checkpoint: null
+is_resume: false
+
+# --- Misc ---
+num_workers: 8
+drop_last: true
+no_epochs: false
+
+# --- Data source ---
+use_streaming: false
