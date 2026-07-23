@@ -26,6 +26,8 @@ class VisionTransformer(nn.Module):
     def forward(self, x):
         # x shape: (batch_size, in_channels, height, width)
         batch_size, _, height, width = x.shape
+        assert height % self.patch_size == 0 and width % self.patch_size == 0, "Height and width must be divisible by patch size."
+        assert (height // self.patch_size) * (width // self.patch_size) <= self.positional_encoding.size(1), "Number of patches exceeds max_seq_len."
 
         # Patch embedding
         x = self.patch_embedding(x)  # (batch_size, d_model, height/patch_size, width/patch_size)
