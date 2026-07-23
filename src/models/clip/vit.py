@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from src.models.modules.block import Block
+from src.models.clip.modules.block import Block
 
 class VisionTransformer(nn.Module):
     def __init__(self, in_channels=3, patch_size=16, d_model=768, d_ff=3072, num_heads=12, num_layers=12, max_seq_len=36, dropout=0.0):
