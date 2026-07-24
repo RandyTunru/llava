@@ -19,7 +19,7 @@ class LLaMA(nn.Module):
 
         # RoPE Frequencies 
         head_dim = self.d_model // self.num_heads
-        freqs = torch.arange(0, head_dim, 2) / head_dim
+        freqs = torch.arange(0, head_dim, 2) / head_dim # (head_dim/2,)
         freqs = 1 / (10000 ** freqs)
 
         # Scale factor to adjust the RoPE frequencies based on the original sequence length
@@ -27,9 +27,10 @@ class LLaMA(nn.Module):
         # For better extrapolation, can look into methods like YaRN, LongRoPE, or NTK-aware Interpolation.
         scale_factor = self.max_seq_len / self.original_seq_len
 
-        t = torch.arange(self.max_seq_len) / scale_factor # Divide by scale_factor to adjust the effective sequence length for RoPE
+        # Divide by scale_factor to adjust the effective sequence length for RoPE
+        t = torch.arange(self.max_seq_len) / scale_factor # (max_seq_len,)
 
-        angles = torch.outer(t, freqs)  
+        angles = torch.outer(t, freqs) # (max_seq_len, head_dim/2)
         freqs_cis = torch.polar(torch.ones_like(angles), angles) 
         self.register_buffer("freqs_cis", freqs_cis, persistent=False)
 
