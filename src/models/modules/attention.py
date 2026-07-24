@@ -18,10 +18,18 @@ class MultiHeadAttention(nn.Module):
 
     def _apply_rope(self, x, freqs_cis):
         # x: (batch_size, num_heads, seq_len, d_k)
-        # freqs_cis: (seq_len, d_k) or (1, 1, seq_len, d_k)
+        # freqs_cis: (seq_len, d_k) 
+        assert x.size(-1) == self.d_k, "Last dimension of x must match d_k"
+        # freqs_cis has one complex frequency per pair of head dimensions.
+        assert freqs_cis.size(-1) == self.d_k // 2, (
+            f"freqs_cis last dim ({freqs_cis.size(-1)}) must equal d_k // 2 ({self.d_k // 2})"
+        )
+        assert freqs_cis.size(0) >= x.size(2), "freqs_cis must have enough length for the given seq_len"
+        assert freqs_cis.dim() == 2, "freqs_cis must be a 2D tensor"
         seq_len = x.size(2)
 
-        freqs_cis = freqs_cis[:seq_len].to(x.device)
+        freqs_cis = freqs_cis[:seq_len]
+        freqs_cis = freqs_cis.to(x.device)
 
         x_reshaped = x.float().view(*x.shape[:-1], self.d_k // 2, 2)
         x_complex = torch.view_as_complex(x_reshaped)
