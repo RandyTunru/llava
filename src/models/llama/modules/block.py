@@ -15,8 +15,8 @@ class Block(nn.Module):
         self.norm2 = RMSNorm(d_model)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x, mask=None):
-        attn_output = self.attention(self.norm1(x), mask=mask)
+    def forward(self, x, mask=None, freqs_cis=None):
+        attn_output = self.attention(self.norm1(x), mask=mask, freqs_cis=freqs_cis)
         x = x + self.dropout(attn_output)
 
         ffn_output = self.ffn(self.norm2(x))
