@@ -30,7 +30,7 @@ class TextTransformer(nn.Module):
 
         # Causal mask 
         mask = torch.tril(torch.ones(max_seq_len, max_seq_len)).bool().unsqueeze(0).unsqueeze(0)
-        self.register_buffer("mask", mask, persistent=False)
+        self.register_buffer("causal_mask", mask, persistent=False)
 
     def forward(self, x):
         # x shape: (batch_size, seq_len)
@@ -45,7 +45,7 @@ class TextTransformer(nn.Module):
 
         # Pass through transformer blocks
         for block in self.blocks:
-            x = block(x, self.mask[:, :, :seq_len, :seq_len])
+            x = block(x, self.causal_mask[:, :, :seq_len, :seq_len])
 
         # Final normalization
         x = self.layer_norm(x)
